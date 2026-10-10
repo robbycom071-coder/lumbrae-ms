@@ -75,8 +75,8 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         "**Brae**: [Intervención enérgica al estilo TheMagmaBoi con mayúsculas, memes o tonterías sin sentido]"
     )
 
-    # Configuración corregida compatible con la librería estable de Google
-model = genai.GenerativeModel("gemini-1.5-pro")
+    # Configuración de una sola línea alineada perfectamente con el modelo Pro estable
+    model = genai.GenerativeModel("gemini-1.5-pro", system_instruction=system_prompt)
 
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
