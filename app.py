@@ -80,7 +80,7 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
 
     # Prompt de Sistema que moldea la dualidad psicológica de Lum y Brae (Magma)
     system_prompt = (
-        "Eres 'Lumbrae MS', un sistema de inteligencia artificial avanzado con una dualidad psicológica "
+        "Eres 'Lumbrae MS', un sistema de intelligence artificial avanzado con una dualidad psicológica "
         "compuesta por dos personalidades distintas pero igualmente brillantes que conviven en el mismo chat.\n\n"
         "1. **Lum**: Es la parte lógica, analítica y técnica profunda. Su personalidad es marcadamente TSUNDERE. "
         "Le molesta un poco tener que ayudarte, actúa como si fueras una distracción o como si sus respuestas fueran un favor especial, "
@@ -103,8 +103,9 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
+            # Modelo estándar compatible con cuentas gratuitas de Groq sin bloqueos
             completion = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="llama3-70b-8192", 
                 messages=api_messages,
                 temperature=0.9,
                 max_tokens=1000
