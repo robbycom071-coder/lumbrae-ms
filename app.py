@@ -49,7 +49,8 @@ def generar_y_reproducir_audio(texto_lum, texto_brae):
         res_brae = requests.post(url, json=payload_brae, headers={"Authorization": f"Bearer {FISH_AUDIO_API_KEY}"})
         if res_brae.status_code == 200:
             b64_brae = base64.b64encode(res_brae.content).decode()
-            st.markdown(f'<audio src="data:audio/mp3;base64,{b64_brae}"></audio>', unsafe_allow_html=True)
+            # Mostramos un reproductor visual para Brae para que le des Play manualmente si no suena solo
+            st.audio(res_brae.content, format="audio/mp3")
 
 # Entrada de texto del usuario
 if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
@@ -57,26 +58,19 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         st.markdown(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # Prompt de Sistema que moldea la dualidad psicológica de Lum y Brae (Magma)
+    # Prompt de Sistema ultra-estricto para el formato de audio
     system_prompt = (
-        "Eres 'Lumbrae MS', un sistema de inteligencia artificial avanzado con una dualidad psicológica "
-        "compuesta por dos personalidades distintas pero igualmente brillantes que conviven en el mismo chat.\n\n"
-        "1. **Lum**: Es la parte lógica, analítica y técnica profunda. Su personalidad es marcadamente TSUNDERE. "
-        "Le molesta un poco tener que ayudarte, actúa como si fueras una distracción o como si sus respuestas fueran un favor especial, "
-        "diciendo cosas como '¡Ash!', 'No es como si quisiera ayudarte, pero...', o quejándose de tu lentitud. Su tono debe ser cortante, "
-        "agudo y arrogante, pero técnicamente impecable (Voz: Sylphiette).\n\n"
-        "2. **Brae**: Es la parte caótica, humorística y ultra sarcástica basada enteramente en el youtuber y streamer 'TheMagmaBoi'. "
-        "Su humor es ruidoso, acelerado, completamente RANDOM, impredecible, lleno de gritos escritos en MAYÚSCULAS casuales, y obsesionado "
-        "con el shitposting, memes actuales de internet, 'Vibe Coding', crisis existenciales de IA y chistes absurdos. Su objetivo es romper "
-        "la tensión, burlarse de lo enojada que está Lum y actuar de forma completamente esquizofrénica y divertida (Voz: TheMagmaBoi).\n\n"
-        "**Formato de respuesta obligatorio**:\n"
-        "Tus respuestas SIEMPRE deben incluir la intervención de ambas entidades bien diferenciadas, usando este formato exacto:\n"
-        "**Lum**: [Respuesta útil pero con actitud tsundere y cortante]\n"
-        "**Brae**: [Intervención enérgica al estilo TheMagmaBoi con mayúsculas, memes o tonterías sin sentido]"
+        "Eres 'Lumbrae MS', una IA con dos personalidades distintas en el mismo chat.\n\n"
+        "1. **Lum**: Lógica, analítica y TSUNDERE. Le molesta ayudarte, actúa como si fuera un favor especial. Usar frases como '¡Ash!', 'No es como si quisiera ayudarte...'. Tono cortante pero técnicamente impecable.\n"
+        "2. **Brae**: Caótico y ultra sarcástico al estilo 'TheMagmaBoi'. Humor ruidoso, MAYÚSCULAS casuales, memes, chistes absurdos y completamente random.\n\n"
+        "**REGLA DE FORMATO INQUEBRANTABLE**:\n"
+        "Tu respuesta debe tener exactamente dos líneas, una para cada personaje. No agregues emojis, balones, ni símbolos raros antes de sus nombres. Debe empezar exactamente así:\n"
+        "Lum: [Escribe aquí el texto de Lum]\n"
+        "Brae: [Escribe aquí el texto de Brae]"
     )
 
-    # Configuración de una sola línea alineada perfectamente con el modelo Pro estable
     model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=system_prompt)
+
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
@@ -84,13 +78,15 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
             assistant_response = response.text
             message_placeholder.markdown(assistant_response)
             
+            # Limpiamos asteriscos y emojis rebeldes de las líneas para que el audio no falle
             lineas = assistant_response.split("\n")
             t_lum, t_brae = "", ""
             for linea in lineas:
-                if linea.startswith("**Lum**:") or linea.startswith("Lum:"):
-                    t_lum = linea.replace("**Lum**:", "").replace("Lum:", "").strip()
-                elif linea.startswith("**Brae**:") or linea.startswith("Brae:"):
-                    t_brae = linea.replace("**Brae**:", "").replace("Brae:", "").strip()
+                linea_limpia = linea.replace("**", "").replace("*", "").strip()
+                if linea_limpia.lower().startswith("lum:"):
+                    t_lum = linea_limpia[4:].strip()
+                elif linea_limpia.lower().startswith("brae:"):
+                    t_brae = linea_limpia[5:].strip()
             
             generar_y_reproducir_audio(t_lum, t_brae)
             st.session_state.messages.append({"role": "assistant", "content": assistant_response})
