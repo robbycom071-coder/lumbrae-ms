@@ -104,7 +104,7 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         message_placeholder = st.empty()
         try:
             completion = groq_client.chat.completions.create(
-                model="llama3-8b-8192", 
+                model="llama-3.1-8b-instant", 
                 messages=api_messages,
                 temperature=0.9,
                 max_tokens=1000
