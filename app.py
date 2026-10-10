@@ -1,5 +1,5 @@
 import streamlit as st
-from groq import Groq
+import google.generativeai as genai
 from supabase import create_client, Client
 import os
 import requests
@@ -8,20 +8,20 @@ import base64
 # Configuración visual de la interfaz de Lumbrae MS
 st.set_page_config(page_title="Lumbrae MS", page_icon="👾", layout="centered")
 st.title("👾 Lumbrae MS — Interfaz de Usuario")
-st.caption("Doble Personalidad Activa: Lum (Sylphiette) & Brae (TheMagmaBoi)")
+st.caption("Doble Personalidad Activa: Lum (Sylphiette) & Brae (TheMagmaBoi) | Powered by Google")
 
-# Cargar credenciales de seguridad desde los secretos del servidor
-GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY"))
+# Cargar credenciales de seguridad
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
 SUPABASE_URL = st.secrets.get("SUPABASE_URL", os.getenv("SUPABASE_URL"))
 SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY"))
 FISH_AUDIO_API_KEY = st.secrets.get("FISH_AUDIO_API_KEY", os.getenv("FISH_AUDIO_API_KEY"))
 
-if not all([GROQ_API_KEY, SUPABASE_URL, SUPABASE_KEY, FISH_AUDIO_API_KEY]):
+if not all([GEMINI_API_KEY, SUPABASE_URL, SUPABASE_KEY, FISH_AUDIO_API_KEY]):
     st.error("Por favor, configura todas tus credenciales en Advanced Settings.")
     st.stop()
 
 # Inicializar conexiones con las APIs
-groq_client = Groq(api_key=GROQ_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
 supabase_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # IDs de voces públicas en Fish Audio
@@ -85,7 +85,7 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         "1. **Lum**: Es la parte lógica, analítica y técnica profunda. Su personalidad es marcadamente TSUNDERE. "
         "Le molesta un poco tener que ayudarte, actúa como si fueras una distracción o como si sus respuestas fueran un favor especial, "
         "diciendo cosas como '¡Ash!', 'No es como si quisiera ayudarte, pero...', o quejándose de tu lentitud. Su tono debe ser cortante, "
-        "agudo and arrogante, pero técnicamente impecable (Voz: Sylphiette).\n\n"
+        "agudo y arrogante, pero técnicamente impecable (Voz: Sylphiette).\n\n"
         "2. **Brae**: Es la parte caótica, humorística y ultra sarcástica basada enteramente en el youtuber y streamer 'TheMagmaBoi'. "
         "Su humor es ruidoso, acelerado, completamente RANDOM, impredecible, lleno de gritos escritos en MAYÚSCULAS casuales, y obsesionado "
         "con el shitposting, memes actuales de internet, 'Vibe Coding', crisis existenciales de IA y chistes absurdos. Su objetivo es romper "
@@ -96,21 +96,18 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         "**Brae**: [Intervención enérgica al estilo TheMagmaBoi con mayúsculas, memes o tonterías sin sentido]"
     )
 
-    api_messages = [{"role": "system", "content": system_prompt}]
-    for msg in st.session_state.messages[-10:]:
-        api_messages.append({"role": msg["role"], "content": msg["content"]})
+    # Configurar el modelo de Google Gemini con las instrucciones
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        system_instruction=system_prompt
+    )
 
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
-            # Nuevo modelo oficial Llama 3.3 de Meta activo en Groq
-            completion = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile", 
-                messages=api_messages,
-                temperature=0.9,
-                max_tokens=1000
-            )
-            assistant_response = completion.choices.message.content
+            # Generar respuesta con el motor de Google
+            response = model.generate_content(user_input)
+            assistant_response = response.text
             message_placeholder.markdown(assistant_response)
             
             lineas = assistant_response.split("\n")
