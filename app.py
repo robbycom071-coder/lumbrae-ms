@@ -76,7 +76,7 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
     )
 
     # Configuración de una sola línea alineada perfectamente con el modelo Pro estable
-    model = genai.GenerativeModel("gemini-2.5-flash", system_instruction=system_prompt)
+    model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=system_prompt)
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
