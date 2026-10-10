@@ -76,10 +76,7 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
     )
 
     # Configuración corregida compatible con la librería estable de Google
-    model = genai.GenerativeModel(
-        model="gemini-1.5-flash",
-        system_instruction=system_prompt
-    )
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
