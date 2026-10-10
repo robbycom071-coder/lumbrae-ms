@@ -75,8 +75,9 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         "**Brae**: [Intervención enérgica al estilo TheMagmaBoi con mayúsculas, memes o tonterías sin sentido]"
     )
 
+    # Configuración corregida compatible con la librería estable de Google
     model = genai.GenerativeModel(
-        mmodel_name="gemini-1.5-flash",
+        model="gemini-1.5-flash",
         system_instruction=system_prompt
     )
 
