@@ -105,7 +105,7 @@ if user_input := st.chat_input("¿Qué quieres pedirle a Lumbrae MS hoy?"):
         try:
             # Nuevo modelo oficial Llama 3.3 de Meta activo en Groq
             completion = groq_client.chat.completions.create(
-                model="llama-3.3-70b-specdec", 
+                model="llama-3.3-70b-versatile", 
                 messages=api_messages,
                 temperature=0.9,
                 max_tokens=1000
